@@ -31,4 +31,8 @@ interface IHealthInterface {
     int[] getSupportedFastChargeModes();
     int getFastChargeMode();
     boolean setFastChargeMode(int mode);
+
+    // Appended to keep transaction codes stable for apps that link the SDK statically
+    int getChargingControlResumeLimit();
+    boolean setChargingControlResumeLimit(int limit);
 }

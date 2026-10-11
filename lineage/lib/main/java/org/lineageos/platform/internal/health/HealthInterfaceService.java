@@ -150,6 +150,16 @@ public class HealthInterfaceService extends LineageSystemService {
         }
 
         @Override
+        public int getChargingControlResumeLimit() {
+            return mCCC.getResumeLimit();
+        }
+
+        @Override
+        public boolean setChargingControlResumeLimit(int limit) {
+            return mCCC.setResumeLimit(limit);
+        }
+
+        @Override
         public boolean resetChargingControl() {
             return mCCC.reset();
         }

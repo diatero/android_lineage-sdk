@@ -1407,6 +1407,16 @@ public final class LineageSettings {
                 new InclusiveIntegerRangeValidator(70, 100);
 
         /**
+         * Battery level below which charging resumes in limit mode.
+         * 0 means the limit minus the device recharge margin.
+         */
+        public static final String CHARGING_CONTROL_RESUME_LIMIT = "charging_control_resume_limit";
+
+        /** @hide */
+        public static final Validator CHARGING_CONTROL_RESUME_LIMIT_VALIDATOR =
+                new InclusiveIntegerRangeValidator(0, 100);
+
+        /**
          * Fast charging mode
          */
         public static final String FAST_CHARGE_MODE = "fast_charge_mode";
@@ -2184,6 +2194,7 @@ public final class LineageSettings {
             VALIDATORS.put(CHARGING_CONTROL_START_TIME, CHARGING_CONTROL_START_TIME_VALIDATOR);
             VALIDATORS.put(CHARGING_CONTROL_TARGET_TIME, CHARGING_CONTROL_TARGET_TIME_VALIDATOR);
             VALIDATORS.put(CHARGING_CONTROL_LIMIT, CHARGING_CONTROL_LIMIT_VALIDATOR);
+            VALIDATORS.put(CHARGING_CONTROL_RESUME_LIMIT, CHARGING_CONTROL_RESUME_LIMIT_VALIDATOR);
             VALIDATORS.put(FAST_CHARGE_MODE, FAST_CHARGE_MODE_VALIDATOR);
             VALIDATORS.put(BATTERY_LIGHT_ENABLED, BATTERY_LIGHT_ENABLED_VALIDATOR);
             VALIDATORS.put(BATTERY_LIGHT_FULL_CHARGE_DISABLED,

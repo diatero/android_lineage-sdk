@@ -59,6 +59,8 @@ public class ChargingControlController extends LineageHealthFeature {
             LineageSettings.System.CHARGING_CONTROL_MODE);
     private final Uri LIMIT_URI = LineageSettings.System.getUriFor(
             LineageSettings.System.CHARGING_CONTROL_LIMIT);
+    private final Uri RESUME_LIMIT_URI = LineageSettings.System.getUriFor(
+            LineageSettings.System.CHARGING_CONTROL_RESUME_LIMIT);
     private final Uri ENABLED_URI = LineageSettings.System.getUriFor(
             LineageSettings.System.CHARGING_CONTROL_ENABLED);
     private final Uri START_TIME_URI = LineageSettings.System.getUriFor(
@@ -230,9 +232,32 @@ public class ChargingControlController extends LineageHealthFeature {
         return true;
     }
 
+    // 0 means the provider recharge margin below the limit
+    private int getResumeLimitSetting() {
+        return LineageSettings.System.getInt(mContentResolver,
+                LineageSettings.System.CHARGING_CONTROL_RESUME_LIMIT, 0);
+    }
+
+    /**
+     * Returns the battery level below which limit mode resumes charging.
+     */
+    public int getResumeLimit() {
+        return mCurrentProvider.getResumePct(getLimit(), getResumeLimitSetting());
+    }
+
+    public boolean setResumeLimit(int limit) {
+        if (limit < 0 || limit > 100) {
+            return false;
+        }
+
+        putInt(LineageSettings.System.CHARGING_CONTROL_RESUME_LIMIT, limit);
+        return true;
+    }
+
     public boolean reset() {
         return setEnabled(mDefaultEnabled) && setMode(mDefaultMode) && setLimit(mDefaultLimit)
-                && setStartTime(mDefaultStartTime) && setTargetTime(mDefaultTargetTime);
+                && setResumeLimit(0) && setStartTime(mDefaultStartTime)
+                && setTargetTime(mDefaultTargetTime);
     }
 
     private void updateBatteryInfo(Intent intent) {
@@ -279,7 +304,8 @@ public class ChargingControlController extends LineageHealthFeature {
         }
 
         // Register setting observer
-        registerSettings(MODE_URI, LIMIT_URI, ENABLED_URI, START_TIME_URI, TARGET_TIME_URI);
+        registerSettings(MODE_URI, LIMIT_URI, RESUME_LIMIT_URI, ENABLED_URI, START_TIME_URI,
+                TARGET_TIME_URI);
 
         handleSettingChange();
     }
@@ -423,6 +449,7 @@ public class ChargingControlController extends LineageHealthFeature {
         mCurrentProvider.enable();
 
         if (mode == MODE_LIMIT) {
+            mCurrentProvider.setResumePct(getResumeLimitSetting());
             if (mCurrentProvider.update(mBatteryPct, limit)) {
                 mChargingNotification.post(limit, mBatteryPct >= limit);
             }
@@ -523,6 +550,8 @@ public class ChargingControlController extends LineageHealthFeature {
         pw.println("  Enabled: " + isEnabled());
         pw.println("  Mode: " + getMode());
         pw.println("  Limit: " + getLimit());
+        pw.println("  ResumeLimit: " + getResumeLimitSetting() + " (effective "
+                + getResumeLimit() + ")");
         pw.println("  StartTime: " + getStartTime());
         pw.println("  TargetTime: " + getTargetTime());
         pw.println();

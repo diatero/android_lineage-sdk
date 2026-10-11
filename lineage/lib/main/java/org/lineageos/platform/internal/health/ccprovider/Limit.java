@@ -59,13 +59,11 @@ public class Limit extends ChargingControlProvider {
 
     private boolean setChargingLimit(int targetPct) {
         try {
-            if (mChargingControl.getChargingLimit().max != targetPct) {
+            int minPct = targetPct == 100 ? 0 : getResumePct(targetPct);
+            ChargingLimitInfo current = mChargingControl.getChargingLimit();
+            if (current.max != targetPct || current.min != minPct) {
                 ChargingLimitInfo limit = new ChargingLimitInfo();
-                if (targetPct == 100) {
-                    limit.min = 0;
-                } else {
-                    limit.min = targetPct - mChargingLimitMargin;
-                }
+                limit.min = minPct;
                 limit.max = targetPct;
                 mChargingControl.setChargingLimit(limit);
             }
@@ -74,6 +72,11 @@ public class Limit extends ChargingControlProvider {
             Log.e(TAG, "Failed to set charging limit", e);
             return false;
         }
+    }
+
+    @Override
+    protected int getChargingLimitMargin() {
+        return mChargingLimitMargin;
     }
 
     @Override

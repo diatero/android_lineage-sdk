@@ -21,6 +21,9 @@ public abstract class ChargingControlProvider {
 
     protected boolean isEnabled = false;
 
+    // Battery level below which limit mode resumes charging; 0 uses the provider margin
+    private int mResumePct;
+
     ChargingControlProvider(Context context, IChargingControl chargingControl) {
         mContext = context;
         mChargingControl = chargingControl;
@@ -42,6 +45,44 @@ public abstract class ChargingControlProvider {
 
     public final void reset() {
         onReset();
+    }
+
+    /**
+     * Sets the user-configured level below which limit mode resumes charging.
+     *
+     * @param resumePct Battery percentage, or 0 to use the provider recharge margin
+     */
+    public final void setResumePct(int resumePct) {
+        mResumePct = resumePct;
+    }
+
+    /**
+     * Returns the level below which limit mode resumes charging.
+     *
+     * @param targetPct The user-configured target charging limit
+     */
+    public final int getResumePct(int targetPct) {
+        return getResumePct(targetPct, mResumePct);
+    }
+
+    /**
+     * Returns the level below which limit mode resumes charging for a given setting.
+     *
+     * @param targetPct The user-configured target charging limit
+     * @param resumePct Battery percentage, or 0 to use the provider recharge margin
+     */
+    public final int getResumePct(int targetPct, int resumePct) {
+        if (resumePct > 0) {
+            return Math.min(resumePct, targetPct);
+        }
+        return targetPct - getChargingLimitMargin();
+    }
+
+    /**
+     * Recharge margin used when no resume level is configured
+     */
+    protected int getChargingLimitMargin() {
+        return 0;
     }
 
     /**

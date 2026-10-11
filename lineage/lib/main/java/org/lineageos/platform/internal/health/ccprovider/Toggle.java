@@ -234,6 +234,11 @@ public class Toggle extends ChargingControlProvider {
     }
 
     @Override
+    protected int getChargingLimitMargin() {
+        return mChargingLimitMargin;
+    }
+
+    @Override
     public boolean isChargingControlModeSupported(int mode) {
         return mode == MODE_AUTO || mode == MODE_MANUAL || mode == MODE_LIMIT;
     }
@@ -250,7 +255,7 @@ public class Toggle extends ChargingControlProvider {
 
     private boolean shouldStopCharging(float currentPct, int targetPct) {
         if (mIsLimitSet) {
-            return currentPct >= targetPct - mChargingLimitMargin;
+            return currentPct >= getResumePct(targetPct);
         }
         return currentPct >= targetPct;
     }

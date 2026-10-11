@@ -259,6 +259,33 @@ public class HealthInterface {
     }
 
     /**
+     * Returns the battery level below which limit mode resumes charging
+     *
+     * @return the resume level, already capped at the charging limit
+     */
+    public int getResumeLimit() {
+        try {
+            return checkService() ? sService.getChargingControlResumeLimit() : 0;
+        } catch (RemoteException e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Sets the battery level below which limit mode resumes charging
+     *
+     * @param limit the resume level, or 0 to use the device recharge margin
+     * @return true if the level was successfully set
+     */
+    public boolean setResumeLimit(int limit) {
+        try {
+            return checkService() && sService.setChargingControlResumeLimit(limit);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    /**
      * Resets the charging control setting to default
      *
      * @return true if the setting was successfully reset
